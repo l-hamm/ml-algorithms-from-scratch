@@ -31,8 +31,41 @@ def compute_probabilities(X, theta, temp_parameter):
     Returns:
         H - (k, n) NumPy array, where each entry H[j][i] is the probability that X[i] is labeled as j
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+
+    #Repeat theta n-times
+    theta_tile=np.tile(theta,(np.shape(X)[0],1))
+
+    #Define numbers of repitions of X
+    repeat_list=[np.shape(theta)[0]]*np.shape(X)[0]
+
+    #Repeat X k-times
+    x_repeat=np.repeat(X,repeat_list, axis=0)
+
+    #Compute pair-wise dot product of theta_tile and X_repeat and divide by tau
+    dot_theta_x_tau=((theta_tile * x_repeat).sum(axis=1))/temp_parameter
+
+    #Split array into n sub-arrays (one array for each X)
+    dot_tau_single=np.array(np.hsplit(dot_theta_x_tau,np.shape(X)[0]))
+
+    #Compute c
+    c=np.max(dot_tau_single,axis=1)
+    c=c.reshape(np.shape(c)[0],1)
+
+    #Compute exponent
+    exp=np.exp(dot_tau_single-c)
+
+    #Compute sum of exponents
+    sum_exp=np.sum(exp,axis=1)
+
+    #Compute scalar part of h
+    scalar=1/sum_exp
+
+    #Compute h
+    h=np.transpose(exp*scalar[:, None])
+    
+    return h
+
+
 
 def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
     """
@@ -50,8 +83,13 @@ def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
     Returns
         c - the cost value (scalar)
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+    
+    #Compute log
+    log_prob=np.log(compute_probabilities(X,theta,temp_parameter))
+
+    
+
+
 
 def run_gradient_descent_iteration(X, Y, theta, alpha, lambda_factor, temp_parameter):
     """

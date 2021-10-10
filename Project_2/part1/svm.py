@@ -15,7 +15,13 @@ def one_vs_rest_svm(train_x, train_y, test_x):
     Returns:
         pred_test_y - (m,) NumPy array containing the labels (0 or 1) for each test data point
     """
-    raise NotImplementedError
+    random_state = 0
+    C=1
+    lsvc=LinearSVC(C=C, random_state=random_state)
+
+    lsvc.fit(train_x,train_y)
+
+    return lsvc.predict(test_x)
 
 
 def multi_class_svm(train_x, train_y, test_x):
@@ -29,7 +35,14 @@ def multi_class_svm(train_x, train_y, test_x):
     Returns:
         pred_test_y - (m,) NumPy array containing the labels (int) for each test data point
     """
-    raise NotImplementedError
+    random_state = 0
+    C=0.1
+    multi_class='ovr'
+    lsvc=LinearSVC(C=C, random_state=random_state, multi_class=multi_class)
+
+    lsvc.fit(train_x,train_y)
+
+    return lsvc.predict(test_x)
 
 
 def compute_test_error_svm(test_y, pred_test_y):
