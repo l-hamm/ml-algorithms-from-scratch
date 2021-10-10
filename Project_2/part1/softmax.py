@@ -84,10 +84,28 @@ def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
         c - the cost value (scalar)
     """
     
-    #Compute log
-    log_prob=np.log(compute_probabilities(X,theta,temp_parameter))
+    j=np.arange(0,np.shape(X)[0])
 
-    
+    condition=np.transpose([np.array(j==Y)])
+    print('condition',condition)
+
+    X_filtered=np.multiply(condition,X)
+    X_filtered=X_filtered[np.any(X_filtered !=0, axis=1),:]
+    print('X_filtered',X_filtered)
+
+    first_term=-np.sum(np.log(compute_probabilities(X_filtered,theta,temp_parameter)))/np.shape(X)[0]
+    print('first_term',first_term)
+
+    second_term=lambda_factor/2*np.sum(np.array(theta**2))
+    print('second_term',second_term)
+
+    print('theta',theta)
+
+    c=first_term+second_term
+    print('c',c)
+
+    return c
+
 
 
 
