@@ -77,31 +77,45 @@ import scipy.sparse as sparse
 #l=[2]*6
 #print(l)
 
-n, d, k = 3, 5, 7
-X = np.arange(0, n * d).reshape(n, d)
-Y = np.arange(0, n)
-theta = np.arange(0, k * d).reshape(k, d)
-lambda_factor=1
+# n, d, k = 3, 5, 7
+# X = np.arange(0, n * d).reshape(n, d)
+# Y = np.arange(0, n)
+# theta = np.arange(0, k * d).reshape(k, d)
+# lambda_factor=1
 
-print('X',X)
-print('Y',Y)
-print('theta',theta)
+# print('X',X)
+# print('Y',Y)
+# print('theta',theta)
 
-j=np.arange(0,n)
-print(j)
+# j=np.arange(0,n)
+# print(j)
 
-condition=np.transpose([np.array(j==Y)])
-print('condition',condition)
+# condition=np.transpose([np.array(j==Y)])
+# print('condition',condition)
 
-X_filtered=np.multiply(condition,X)
-X_filtered=X_filtered[np.any(X_filtered !=0, axis=1),:]
-print('X_filtered',X_filtered)
+# X_filtered=np.multiply(condition,X)
+# X_filtered=X_filtered[np.any(X_filtered !=0, axis=1),:]
+# print('X_filtered',X_filtered)
 
-first_term=np.sum(X_filtered)/np.shape(X)[0]
-print('first_term',first_term)
+# first_term=np.sum(X_filtered)/np.shape(X)[0]
+# print('first_term',first_term)
 
-second_term=lambda_factor/2*np.sum(np.array(theta**2))
-print('second_term',second_term)
+# second_term=lambda_factor/2*np.sum(np.array(theta**2))
+# print('second_term',second_term)
 
-c=first_term+second_term
-print('c',c)
+# c=first_term+second_term
+# print('c',c)
+
+a=np.identity(5)
+b=np.ones((5,5))
+
+c=np.array(a==b)
+
+e=np.size(c)-np.sum(c)
+e_rel=e/np.size(c)
+
+print(c)
+print(e)
+print(e_rel)
+
+print(1-(a==b).mean())

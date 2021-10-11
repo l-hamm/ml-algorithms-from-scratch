@@ -32,36 +32,50 @@ def compute_probabilities(X, theta, temp_parameter):
         H - (k, n) NumPy array, where each entry H[j][i] is the probability that X[i] is labeled as j
     """
 
-    #Repeat theta n-times
-    theta_tile=np.tile(theta,(np.shape(X)[0],1))
+    # #Repeat theta n-times
+    # theta_tile=np.tile(theta,(np.shape(X)[0],1))
 
-    #Define numbers of repitions of X
-    repeat_list=[np.shape(theta)[0]]*np.shape(X)[0]
+    # #Define numbers of repitions of X
+    # repeat_list=[np.shape(theta)[0]]*np.shape(X)[0]
 
-    #Repeat X k-times
-    x_repeat=np.repeat(X,repeat_list, axis=0)
+    # #Repeat X k-times
+    # x_repeat=np.repeat(X,repeat_list, axis=0)
 
-    #Compute pair-wise dot product of theta_tile and X_repeat and divide by tau
-    dot_theta_x_tau=((theta_tile * x_repeat).sum(axis=1))/temp_parameter
+    # #Compute pair-wise dot product of theta_tile and X_repeat and divide by tau
+    # dot_theta_x_tau=((theta_tile * x_repeat).sum(axis=1))/temp_parameter
 
-    #Split array into n sub-arrays (one array for each X)
-    dot_tau_single=np.array(np.hsplit(dot_theta_x_tau,np.shape(X)[0]))
+    # #Split array into n sub-arrays (one array for each X)
+    # dot_tau_single=np.array(np.hsplit(dot_theta_x_tau,np.shape(X)[0]))
 
-    #Compute c
-    c=np.max(dot_tau_single,axis=1)
-    c=c.reshape(np.shape(c)[0],1)
+    # #Compute c
+    # c=np.max(dot_tau_single,axis=1)
+    # c=c.reshape(np.shape(c)[0],1)
 
-    #Compute exponent
-    exp=np.exp(dot_tau_single-c)
+    # #Compute exponent
+    # exp=np.exp(dot_tau_single-c)
 
-    #Compute sum of exponents
-    sum_exp=np.sum(exp,axis=1)
+    # #Compute sum of exponents
+    # sum_exp=np.sum(exp,axis=1)
 
-    #Compute scalar part of h
-    scalar=1/sum_exp
+    # #Compute scalar part of h
+    # scalar=1/sum_exp
 
-    #Compute h
-    h=np.transpose(exp*scalar[:, None])
+    # #Compute h
+    # h=np.transpose(exp*scalar[:, None])
+
+    # Compute the matrix of theta*X' (each row is a category, column an example)
+    R = (theta.dot(X.T))/temp_parameter
+    
+    # Compute fixed deduction factor for numerical stability (c is a vector: 1xn)
+    c = np.max(R, axis = 0)
+    
+    # Compute H matrix
+    h = np.exp(R - c)
+    
+    # Divide H by the normalizing term
+    h = h/np.sum(h, axis = 0)
+
+
     
     return h
 
@@ -83,53 +97,33 @@ def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
     Returns
         c - the cost value (scalar)
     """
-    
-    # j=np.arange(0,np.shape(X)[0])
 
-    # condition=np.transpose([np.array(j==Y)])
-    # print('condition',condition)
-
-    # X_filtered=np.multiply(condition,X)
-    # X_filtered=X_filtered[np.any(X_filtered !=0, axis=1),:]
-    # print('X_filtered',X_filtered)
-
-    # first_term=-np.sum(np.log(compute_probabilities(X_filtered,theta,temp_parameter)))/np.shape(X)[0]
-    # print('first_term',first_term)
-
-    # second_term=lambda_factor/2*np.sum(np.array(theta**2))
-    # print('second_term',second_term)
-
-    # print('theta',theta)
-
-    # c=first_term+second_term
-    # print('c',c)
-
-    # return c
-
-    # Get number of labels
-    k = theta.shape[0]
+    n = np.shape(X)[0]
     
-    # Get number of examples
-    n = X.shape[0]
+    #Create condition matrix
+    condition=np.identity(n) 
+
+    # Compute probabilities
+    probabilities=compute_probabilities(X, theta, temp_parameter)
+
+    #Clip probabilities of 0 and 1
+    probabilities_clipped = np.clip(probabilities, 0.0000000000001, 0.9999999999999)
     
-    # avg error term
+    #Log of probabilities
+    log_probabilities_clipped = np.log(probabilities_clipped)
     
-    # Clip prob matrix to avoid NaN instances
-    clip_prob_matrix = np.clip(compute_probabilities(X, theta, temp_parameter), 1e-15, 1-1e-15)
+    #Only keep first n rows in log
+    #first_log_probabilities=log_probabilities_clipped[:n,:]
+
+    condition = sparse.coo_matrix(([1]*n, (Y, range(n))), shape=(np.shape(theta)[0],n)).toarray()
+
+    # Result
+    first_term = (-1/n)*np.sum(log_probabilities_clipped[condition == 1])     
+    second_term = (lambda_factor/2)*np.linalg.norm(theta)**2
+
+    c=first_term+second_term
     
-    # Take the log of the matrix of probabilities
-    log_clip_matrix = np.log(clip_prob_matrix)
-    
-    # Create a sparse matrix of [[y(i) == j]]
-    M = sparse.coo_matrix(([1]*n, (Y, range(n))), shape = (k,n)).toarray()
-    
-    # Only add terms of log(matrix of prob) where M == 1
-    error_term = (-1/n)*np.sum(log_clip_matrix[M == 1])    
-                
-    # Regularization term
-    reg_term = (lambda_factor/2)*np.linalg.norm(theta)**2
-    
-    return error_term + reg_term
+    return c
 
 
 
@@ -151,25 +145,24 @@ def run_gradient_descent_iteration(X, Y, theta, alpha, lambda_factor, temp_param
     Returns:
         theta - (k, d) NumPy array that is the final value of parameters theta
     """
-    # Get number of labels
-    k = theta.shape[0]
+    n=np.shape(X)[0]
+    k=np.shape(theta)[0]
     
-    # Get number of examples
-    n = X.shape[0]
+    #Compute probabilities
+    probabilities=compute_probabilities(X,theta,temp_parameter)
+
+    #Condition matrix
+    condition=sparse.coo_matrix(([1]*n, (Y, range(n))), shape=(k,n)).toarray()
+
+    #Substract probabilities from condition matrix
+    diff=condition-probabilities
     
-    # Create spare matrix of [[y(i) == j]]
-    M = sparse.coo_matrix(([1]*n, (Y, range(n))), shape=(k,n)).toarray()
+    #Result
+    theta_new=(-1/(temp_parameter*n))*np.matmul(diff,X)+lambda_factor*theta
+    theta_new=theta-alpha*theta_new
     
-    # Matrix of Probabilities
-    P = compute_probabilities(X, theta, temp_parameter)
-    
-    # Gradient matrix of theta
-    grad_theta = (-1/(temp_parameter*n))*((M - P) @ X) + lambda_factor*theta
-    
-    # Gradient descent update of theta matrix
-    theta = theta - alpha*grad_theta
-    
-    return theta
+    return theta_new
+
 
 def update_y(train_y, test_y):
     """
@@ -188,10 +181,8 @@ def update_y(train_y, test_y):
         test_y_mod3 - (n, ) NumPy array containing the new labels (a number between 0-2)
                     for each datapoint in the test set
     """
-    train_y_mod3 = np.mod(train_y, 3)
-    test_y_mod3 = np.mod(test_y, 3)
     
-    return (train_y_mod3, test_y_mod3)
+    return (np.mod(train_y, 3), np.mod(test_y, 3))
 
 def compute_test_error_mod3(X, Y, theta, temp_parameter):
     """
@@ -208,8 +199,21 @@ def compute_test_error_mod3(X, Y, theta, temp_parameter):
     Returns:
         test_error - the error rate of the classifier (scalar)
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+    # classified_labels=get_classification(X, theta, temp_parameter)
+    
+    # classified_labels_mod3=np.mod(classified_labels,3)
+
+    # result=np.array(classified_labels_mod3==Y)
+
+    # error_abs=np.size(result)-np.sum(result)
+
+    # error_percent=error_abs/np.size(result)
+    
+
+    # return error_percent
+    y_pred=get_classification(X,theta,temp_parameter)
+    return 1-(np.mod(y_pred,3)==Y).mean()
+
 
 def softmax_regression(X, Y, temp_parameter, alpha, lambda_factor, k, num_iterations):
     """
