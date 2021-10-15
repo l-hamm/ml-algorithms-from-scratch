@@ -106,16 +106,9 @@ import scipy.sparse as sparse
 # c=first_term+second_term
 # print('c',c)
 
-a=np.identity(5)
-b=np.ones((5,5))
-
-c=np.array(a==b)
-
-e=np.size(c)-np.sum(c)
-e_rel=e/np.size(c)
-
-print(c)
-print(e)
-print(e_rel)
-
-print(1-(a==b).mean())
+X=np.arange(4).reshape((2,2))
+Y=np.arange(6).reshape((3,2))
+print(X)
+#print(Y)
+print(Y.T)
+print(np.dot(X,Y.T))
