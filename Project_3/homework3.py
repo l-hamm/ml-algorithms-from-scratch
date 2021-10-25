@@ -47,6 +47,12 @@ print('z2',z2)
 print('y',y)
 print('C',C)
 
+dz1_dw1=x
+da1_dz1=1
+dz2_da1=w2
+dy_dz2=np.exp(-z2)/(1+np.exp(-z2))**2
+dC_dy=-(y-t)
+
 dC_dw1=x*1*w2*(np.exp(-z2)/(1+np.exp(-z2))**2)*(-(y-t))
 dC_dw2=a1*(np.exp(-z2)/(1+np.exp(-z2))**2)*(-(y-t))
 dC_db=1*(np.exp(-z2)/(1+np.exp(-z2))**2)*(-(y-t))
@@ -55,4 +61,4 @@ print('dC_dw1',dC_dw1)
 print('dC_dw2',dC_dw2)
 print('dC_db',dC_db)
 
-print(np.maximum(0,3))
+print('dC_dw1',dz1_dw1*da1_dz1*dz2_da1*dy_dz2*dC_dy)
