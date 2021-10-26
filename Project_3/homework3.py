@@ -3,7 +3,7 @@ import numpy as np
 Wfh, Wfx, bf, Wch=0,0,-100,-100
 Wih, Wix, bi, Wcx=0,100,100,50
 Woh, Wox, bo, bc=0,100,0,0
-x=np.array((1,0,1))
+x=np.array((0,0,1,1,1,0))
 
 f=np.zeros(x.shape[0])
 i=np.zeros(x.shape[0])
@@ -48,17 +48,13 @@ print('y',y)
 print('C',C)
 
 dz1_dw1=x
+dz1_dw2=a1
 da1_dz1=1
 dz2_da1=w2
+dz2_db1=1
 dy_dz2=np.exp(-z2)/(1+np.exp(-z2))**2
 dC_dy=-(y-t)
 
-dC_dw1=x*1*w2*(np.exp(-z2)/(1+np.exp(-z2))**2)*(-(y-t))
-dC_dw2=a1*(np.exp(-z2)/(1+np.exp(-z2))**2)*(-(y-t))
-dC_db=1*(np.exp(-z2)/(1+np.exp(-z2))**2)*(-(y-t))
-
-print('dC_dw1',dC_dw1)
-print('dC_dw2',dC_dw2)
-print('dC_db',dC_db)
-
 print('dC_dw1',dz1_dw1*da1_dz1*dz2_da1*dy_dz2*dC_dy)
+print('dC_dw2',dz1_dw2*dy_dz2*dC_dy)
+print('dC_db',dz2_db1*dy_dz2*dC_dy)

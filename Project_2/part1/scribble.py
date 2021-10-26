@@ -112,3 +112,4 @@ print(X)
 #print(Y)
 print(Y.T)
 print(np.dot(X,Y.T))
+
