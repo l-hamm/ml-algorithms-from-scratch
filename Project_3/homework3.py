@@ -53,7 +53,7 @@ da1_dz1=1
 dz2_da1=w2
 dz2_db1=1
 dy_dz2=np.exp(-z2)/(1+np.exp(-z2))**2
-dC_dy=-(y-t)
+dC_dy=y-t
 
 print('dC_dw1',dz1_dw1*da1_dz1*dz2_da1*dy_dz2*dC_dy)
 print('dC_dw2',dz1_dw2*dy_dz2*dC_dy)
