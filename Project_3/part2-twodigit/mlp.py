@@ -18,14 +18,22 @@ class MLP(nn.Module):
     def __init__(self, input_dimension):
         super(MLP, self).__init__()
         self.flatten = Flatten()
+        self.linear1=nn.Linear(input_dimension,64)
+        self.output1=nn.Linear(64,10)
+        self.linear2=nn.Linear(input_dimension,64)
+        self.output2=nn.Linear(64,10)
         # TODO initialize model layers here
 
     def forward(self, x):
         xf = self.flatten(x)
+        xl1=self.linear1(xf)
+        xo1=self.output1(xl1)
+        xl2=self.linear2(xf)
+        xo2=self.output2(xl2)
 
         # TODO use model layers to predict the two digits
 
-        return out_first_digit, out_second_digit
+        return xo1, xo2
 
 def main():
     X_train, y_train, X_test, y_test = U.get_data(path_to_data_dir, use_mini_dataset)
@@ -63,3 +71,7 @@ if __name__ == '__main__':
     np.random.seed(12321)  # for reproducibility
     torch.manual_seed(12321)  # for reproducibility
     main()
+
+#X_train, y_train, X_test, y_test = U.get_data(path_to_data_dir, use_mini_dataset)
+#print(np.shape(y_train[0]))
+#print(np.shape(y_train[1]))

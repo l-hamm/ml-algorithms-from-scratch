@@ -19,17 +19,15 @@ def main():
     X_train, y_train, X_test, y_test = get_MNIST_data()
 
     # Split into train and dev
-    dev_split_index = int(9 * len(X_train) / 10)
-    X_dev = X_train[dev_split_index:]
+    dev_split_index = int(9 * len(X_train) / 10) #split at 90% to 10%
+    X_dev = X_train[dev_split_index:] #Last 10% of data into dev
     y_dev = y_train[dev_split_index:]
-    X_train = X_train[:dev_split_index]
+    X_train = X_train[:dev_split_index] #First 90% of data into train
     y_train = y_train[:dev_split_index]
-
-    permutation = np.array([i for i in range(len(X_train))])
-    np.random.shuffle(permutation)
-    X_train = [X_train[i] for i in permutation]
+    permutation = np.array([i for i in range(len(X_train))]) #array with indeces of X_train 
+    np.random.shuffle(permutation) #change order of indices randomlly
+    X_train = [X_train[i] for i in permutation] #change order of X_train
     y_train = [y_train[i] for i in permutation]
-
     # Split dataset into batches
     batch_size = 32
     train_batches = batchify_data(X_train, y_train, batch_size)
@@ -39,9 +37,9 @@ def main():
     #################################
     ## Model specification TODO
     model = nn.Sequential(
-              nn.Linear(784, 10),
-              nn.ReLU(),
-              nn.Linear(10, 10),
+              nn.Linear(784, 128),
+              nn.LeakyReLU(),
+              nn.Linear(128, 10),
             )
     lr=0.1
     momentum=0

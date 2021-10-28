@@ -19,17 +19,32 @@ class CNN(nn.Module):
 
     def __init__(self, input_dimension):
         super(CNN, self).__init__()
-        # TODO initialize model layers here
-
+        self.conv1 = nn.Conv2d(1, 32, (3, 3))
+        self.relu = nn.ReLU()
+        self.maxpool = nn.MaxPool2d((2,2))
+        self.conv2 = nn.Conv2d(32, 64, (3, 3))
+        self.flatten = Flatten() 
+        self.linear1 = nn.Linear(2880, 64)
+        self.dropout = nn.Dropout(p = 0.5)
+        self.linear2 = nn.Linear(64, 20)
+        
     def forward(self, x):
-
-        # TODO use model layers to predict the two digits
-
-        return out_first_digit, out_second_digit
+        c1 = self.conv1(x)
+        r1 = self.relu(c1)
+        p1 = self.maxpool(r1) 
+        c2 = self.conv2(p1)
+        r2 = self.relu(c2)
+        p2 = self.maxpool(r2)
+        f = self.flatten(p2)
+        l1 = self.linear1(f)
+        d = self.dropout(l1)
+        l2 = self.linear2(d)
+        
+        return l2[:,:10], l2[:,10:]
 
 def main():
     X_train, y_train, X_test, y_test = U.get_data(path_to_data_dir, use_mini_dataset)
-
+    
     # Split into train and dev
     dev_split_index = int(9 * len(X_train) / 10)
     X_dev = X_train[dev_split_index:]
@@ -63,3 +78,8 @@ if __name__ == '__main__':
     np.random.seed(12321)  # for reproducibility
     torch.manual_seed(12321)  # for reproducibility
     main()
+
+
+# X_train, y_train, X_test, y_test = U.get_data(path_to_data_dir, use_mini_dataset)
+# print(np.shape(X_train))
+# print(np.shape(y_train))
