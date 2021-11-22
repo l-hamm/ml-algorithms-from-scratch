@@ -106,9 +106,31 @@ import scipy.sparse as sparse
 # c=first_term+second_term
 # print('c',c)
 
-X=np.arange(4).reshape((2,2))
-Y=np.arange(6).reshape((3,2))
-print(X)
-#print(Y)
-print(Y.T)
-print(np.dot(X,Y.T))
+#0:w11,1:w21,2:w12,3:w22,4:w01,5:w02
+#w=np.array([0,0,0,0,0,0])
+w=np.array([2,2,-2,-2,1,1])
+#w=np.array([-2,-2,2,2,1,1])
+
+x1=np.array([-1,-1])
+x2=np.array([1,-1])
+x3=np.array([-1,1])
+x4=np.array([1,1])
+
+x=np.array([x1,x2,x3,x4])
+
+y=np.array([1,-1,-1,1])
+
+f1=np.zeros(x.shape[0])
+f2=np.zeros(x.shape[0])
+z=np.zeros((4,2))
+
+for i in range(x.shape[0]):
+    f1[i]=w[4]+w[0]*x[i,0]+w[1]*x[i,1]
+    f2[i]=w[5]+w[2]*x[i,0]+w[3]*x[i,1]
+    z[i]=np.array([f1[i],f2[i]])
+    
+print(z)
+
+#linear activation
+linear=5*z-2
+print(linear)
