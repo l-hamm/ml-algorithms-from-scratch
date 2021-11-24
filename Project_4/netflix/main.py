@@ -63,11 +63,11 @@ for k in range(len(K)):
                 title="EM") 
     
     #BIC score for EM
-    #bic[k] = common.bic(X, mixtures_EM[best_seed_EM[k]], np.max(costs_EM))
+    bic[k] = common.bic(X, mixtures_EM[best_seed_EM[k]], np.max(costs_EM))
     
 # Print the best K based on BIC
-#print("================= BIC ====================")
-#print("Best K is:", np.argmax(bic)+1)
-#print("BIC for the best K is:", np.max(bic))
+print("================= BIC ====================")
+print("Best K is:", np.argmax(bic)+1)
+print("BIC for the best K is:", np.max(bic))
  
 ########## End: kMeans vs EM (and BIC) #############
