@@ -101,7 +101,31 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
     
     # Update variances
     denom_var = np.sum(post*np.sum(delta, axis=1).reshape(-1,1), axis=0) # Shape: (K,)
-
+    
+######## Loop version for norms calc. ##########
+    
+    # Norm matrix for variance calc
+#    norms = np.zeros((n, K), dtype=np.float64)
+#    
+#    for i in range(n):
+#        # For each user pick only columns that have ratings
+#        Cu_indices = X[i,:] != 0
+#        diff = X[i, Cu_indices] - mu_rev[:, Cu_indices]    # This will be (K,|Cu|)
+#        norms[i,:] = np.sum(diff**2, axis=1)  # This will be (K,)
+    
+######## End: loop version #########
+        
+######## Vectorized version for norms calc. ########
+    
+#    norms = np.sum(((X[:, None, :] - mu_rev)*delta[:, None, :])**2, axis=2)
+    norms = np.sum(X**2, axis=1)[:,None] + (delta @ mu_rev.T**2) - 2*(X @ mu_rev.T)
+    
+######## End: vectorized version #########
+    
+    # Revised var: if var(j) < 0.25, set it = 0.25
+    var_rev = np.maximum(np.sum(post*norms, axis=0)/denom_var, min_variance)  
+    
+    return GaussianMixture(mu_rev, var_rev, pi_rev)
 
 def run(X: np.ndarray, mixture: GaussianMixture,
         post: np.ndarray) -> Tuple[GaussianMixture, np.ndarray, float]:
